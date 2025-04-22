@@ -100,7 +100,7 @@ class XmlParser:
         ret = []
         # programlisting
         if p.tag == "programlisting":
-            code = MdCodeBlock([])
+            code = MdCodeBlock([], p.get("filename", ".")[1:])
             for codeline in p.findall("codeline"):
                 line = ""
                 for highlight in codeline.findall("highlight"):

@@ -95,7 +95,8 @@ class Node:
         self._children.append(child)
 
     def sort_children(self):
-        self._children.sort(key=lambda x: x._name, reverse=False)
+        pass
+        #self._children.sort(key=lambda x: x._name, reverse=False)
 
     def _check_for_children(self):
         for innergroup in self._xml.findall("innergroup"):
@@ -355,6 +356,10 @@ class Node:
         return self._kind.is_enum()
 
     @property
+    def is_anonymous_enum(self) -> bool:
+        return self._kind.is_enum() and self._name.startswith('@')
+
+    @property
     def is_class_or_struct(self) -> bool:
         return self._kind.is_class_or_struct()
 
@@ -474,7 +479,8 @@ class Node:
     @property
     def url(self) -> str:
         if self.is_parent or self.is_group or self.is_file or self.is_dir or self.is_page:
-            return self.project.linkPrefix + self._refid + ".md"
+            cleaned_refid = self._clean_refid_for_path() if self.is_group else self._refid
+            return self.project.linkPrefix + cleaned_refid + ".md"
         else:
             return f"{self._parent.url}#{self.anchor}"
 
@@ -506,13 +512,21 @@ class Node:
     @property
     def url_source(self) -> str:
         if self.is_parent or self.is_group or self.is_file or self.is_dir:
-            return self.project.linkPrefix + self._refid + "_source.md"
+            cleaned_refid = self._clean_refid_for_path() if self.is_group else self._refid
+            return self.project.linkPrefix + cleaned_refid + "_source.md"
         else:
             return self.project.linkPrefix + self._refid + ".md"
 
     @property
     def filename(self) -> str:
-        return self.project.linkPrefix + self._refid + ".md"
+        cleaned_refid = self._clean_refid_for_path() if self.is_group else self._refid
+        return self.project.linkPrefix + cleaned_refid + ".md"
+
+    def _clean_refid_for_path(self) -> str:
+        """Removes group__ prefix from refid when used in file paths."""
+        if self._refid.startswith("group__"):
+            return self._refid[7:]  # Remove "group__" (7 characters)
+        return self._refid
 
     @property
     def root(self) -> "Node":
