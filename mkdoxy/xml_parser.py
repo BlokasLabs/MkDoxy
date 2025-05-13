@@ -123,7 +123,10 @@ class XmlParser:
             return ret
         if p.text:
             if italic:
-                ret.extend((MdItalic([Text(p.text.strip())]), Text(" ")))
+                # Add proper spacing after italic text
+                ret.append(MdItalic([Text(p.text.strip())]))
+                # Add space as a separate Text element to ensure proper spacing
+                ret.append(Text(" "))
             else:
                 ret.append(Text(p.text))
         for item in list(p):
@@ -280,7 +283,10 @@ class XmlParser:
 
             if item.tail:
                 if italic:
-                    ret.extend((Text(" "), MdItalic([Text(item.tail.strip())])))
+                    # Add space before and after italic text for consistent spacing
+                    ret.append(Text(" "))
+                    ret.append(MdItalic([Text(item.tail.strip())]))
+                    ret.append(Text(" "))
                 else:
                     ret.append(Text(item.tail))
         return ret
